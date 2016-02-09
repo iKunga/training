@@ -1,53 +1,49 @@
 <?php
 
-class Router{
+class Router {
+
+    // РІ СЌС‚РѕР№ РїРµСЂРµРјРµРЅРЅРѕР№ Р±СѓРґРµРј С…СЂР°РЅРёС‚СЊ РЅР°С€Рё РјР°СЂС€СЂСѓС‚С‹
     private $routes;
-    private $replaceMask='/demchenko/shop/index.php/';
-    public function __construct(){
-        $routes = include_once(ROOT.'/config/routes.php');
-        $this->routes = $routes;
-        
-    }
+    private $mask;
     
-    public function GetURI(){
-        $request = $_SERVER['REQUEST_URI'];
-        $request = str_replace($this->replaceMask,'',$request);
-        $request = trim($request,'/');
-        return $request;
+
+    public  function  __construct()
+    {
+        $this->routes = include_once(ROOT.'/config/routes.php');
     }
 
-        public function run(){
-            //получаем запрос от пользователя
-          $uri = $this->GetURI();
-          //начинаем перебирать маршруты, которые у нас есть
-       foreach($this->routes as $path=>$logic){
-           //если запрос пользователя совпал с маршрутом
-           if($uri===$path){
-               //информируем пользователя об этом
-               echo "Get logic 4 this link: ";
-               echo "<br>{$logic}<br>";
-               
-               $segments = explode('/', $logic);
-               $controllerName = array_shift($segments);
-               
-               $controllerName = ucfirst($controllerName)."Controller";
-               $controllerFileName = $controllerName.'.php';
-               
-               echo "This is controller";
-               echo $controllerName;
-               echo "<br>";
-               
-               $actionName = array_shift($segments);
-               $actionName = $actionName.'Action';
-               
-               echo "This is action<br>";
-               echo $actionName;
-               echo "<br>";
-               
-               exit();
-               
-           }
-       }
+    public function run() {
+        $uri = $this->getURI();
+        foreach($this->routes as $path=>$logic){
+
+            if($path===$uri){
+
+                $segments = explode('/', $logic);
+                $controller = array_shift($segments);
+                $action     = array_shift($segments);
+
+                                $controllerName = ucfirst($controller).'Controller';
+                $controllerFileName = $controllerName.'.php';
+                $actionName     = ucfirst($action).'Action';
+
+                echo "<br>Controller: {$controllerName}";
+                echo "<br>Action: {$actionName}";
+
+
+                include_once(ROOT.'/controllers/'.$controllerFileName);
+                $controller = new $controllerName;
+                $controller->$actionName();
+                echo "
+Action: {$action}";
+
+            }
+        }
+    }
+
+    public function getURI() {
+        $request = $_SERVER['REQUEST_URI'];
+        $request = str_replace($this->mask, '', $request);
+        $request = trim($request, '/');
+        return $request;
     }
 }
-?>

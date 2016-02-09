@@ -28,4 +28,4 @@ $router = new Router();
 
 $router->run();
 
-echo "Hello world! asdasd";
+//echo "Hello world!";
